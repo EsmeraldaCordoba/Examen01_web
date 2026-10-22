@@ -41,3 +41,27 @@
                 return 'Otro (' . $extension . ')';
         }
     }
+
+    // si el archivo se puede ver en pantalla (pdf e imagenes) devuelve su tipo mime,
+    // si no se puede ver devuelve vacio y entonces se descarga
+    function mimePantalla($extension) {
+        $extension = strtolower($extension);
+
+        switch ($extension) {
+            case 'pdf':
+                return 'application/pdf';
+            case 'jpg':
+            case 'jpeg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'gif':
+                return 'image/gif';
+            case 'bmp':
+                return 'image/bmp';
+            case 'webp':
+                return 'image/webp';
+            default:
+                return '';
+        }
+    }

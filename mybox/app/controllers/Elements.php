@@ -146,6 +146,62 @@
             exit();
         }
 
+        // abre un archivo: pdf e imagenes se ven en pantalla, lo demas se descarga
+        public function open($id = 0) {
+            $id = (int)$id;
+            $archivo = $this->elementModel->getFile($id, $_SESSION['id_usuario']);
+
+            // tiene que existir y ser del usuario
+            if (!$archivo) {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            $nombre = str_replace('"', '', $archivo->nombre);
+            $mimeVer = mimePantalla($archivo->tipo);
+
+            if ($mimeVer != '') {
+                // se muestra en el navegador
+                header('Content-Type: ' . $mimeVer);
+                header('Content-Disposition: inline; filename="' . $nombre . '"');
+            } else {
+                // se descarga
+                header('Content-Type: application/octet-stream');
+                header('Content-Disposition: attachment; filename="' . $nombre . '"');
+            }
+
+            header('X-Content-Type-Options: nosniff');
+            header('Content-Length: ' . strlen($archivo->contenido));
+
+            echo $archivo->contenido;
+            exit();
+        }
+
+        // borra un archivo o una carpeta (con todo lo que tenga adentro)
+        public function delete($id = 0) {
+            $id = (int)$id;
+
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            $idUsuario = $_SESSION['id_usuario'];
+            $elemento = $this->elementModel->getElement($id, $idUsuario);
+
+            // tiene que existir y ser del usuario
+            if (!$elemento) {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            $this->elementModel->deleteElement($id, $idUsuario);
+
+            // vuelve a la carpeta donde estaba
+            header('location: ' . urlRoot . '/elements/index/' . (int)$elemento->id_padre);
+            exit();
+        }
+
         // arma los datos y muestra la vista
         private function mostrar($idCarpeta, $error) {
             $idUsuario = $_SESSION['id_usuario'];

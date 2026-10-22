@@ -29,6 +29,26 @@
             return $this->db->single();
         }
 
+        // busca un archivo o carpeta del usuario (sin el contenido), si no existe devuelve false
+        public function getElement($id, $idUsuario) {
+            $this->db->query('select id, id_padre, nombre, es_carpeta from elementos
+                              where id = :id and id_usuario = :usuario');
+            $this->db->bind(':id', $id);
+            $this->db->bind(':usuario', $idUsuario);
+
+            return $this->db->single();
+        }
+
+        // busca un archivo del usuario con todo y su contenido
+        public function getFile($id, $idUsuario) {
+            $this->db->query('select id, nombre, tipo, mime, peso, contenido from elementos
+                              where id = :id and id_usuario = :usuario and es_carpeta = 0');
+            $this->db->bind(':id', $id);
+            $this->db->bind(':usuario', $idUsuario);
+
+            return $this->db->single();
+        }
+
         // devuelve la lista de carpetas desde la raiz hasta la carpeta actual
         public function getPath($idCarpeta, $idUsuario) {
             $ruta = [];
@@ -70,6 +90,16 @@
             $this->db->bind(':mime', $mime);
             $this->db->bind(':peso', $peso);
             $this->db->bind(':contenido', $contenido, PDO::PARAM_LOB);
+
+            return $this->db->execute();
+        }
+
+        // borra un archivo o carpeta del usuario
+        // si es una carpeta, lo que tiene adentro se borra solo por el on delete cascade
+        public function deleteElement($id, $idUsuario) {
+            $this->db->query('delete from elementos where id = :id and id_usuario = :usuario');
+            $this->db->bind(':id', $id);
+            $this->db->bind(':usuario', $idUsuario);
 
             return $this->db->execute();
         }

@@ -52,12 +52,13 @@
                     <th>Peso (MB)</th>
                     <th>Fecha</th>
                     <th>Compartido</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (count($data['elementos']) == 0): ?>
                     <tr>
-                        <td colspan="7">Esta carpeta está vacía</td>
+                        <td colspan="8">Esta carpeta está vacía</td>
                     </tr>
                 <?php endif; ?>
 
@@ -75,13 +76,33 @@
                             <td>-</td>
                         <?php else: ?>
                             <td>Archivo</td>
-                            <td><?php echo htmlspecialchars($e->nombre); ?></td>
+                            <td>
+                                <?php if (mimePantalla($e->tipo) != ''): ?>
+                                    <a href="<?php echo urlRoot; ?>/elements/open/<?php echo $e->id; ?>" target="_blank">
+                                        <?php echo htmlspecialchars($e->nombre); ?>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?php echo urlRoot; ?>/elements/open/<?php echo $e->id; ?>">
+                                        <?php echo htmlspecialchars($e->nombre); ?>
+                                    </a>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo htmlspecialchars($e->comentario); ?></td>
                             <td><?php echo tipoDocumento($e->tipo); ?></td>
                             <td><?php echo round($e->peso / 1048576, 2); ?></td>
                         <?php endif; ?>
                         <td><?php echo $e->fecha; ?></td>
                         <td><?php if ($e->compartido > 0) { echo 'Sí'; } else { echo 'No'; } ?></td>
+                        <td>
+                            <?php if ($e->es_carpeta == 1) {
+                                $mensaje = '¿Borrar la carpeta y todo lo que tiene adentro?';
+                            } else {
+                                $mensaje = '¿Borrar este archivo?';
+                            } ?>
+                            <form action="<?php echo urlRoot; ?>/elements/delete/<?php echo $e->id; ?>" method="post" onsubmit="return confirm('<?php echo $mensaje; ?>');">
+                                <input type="submit" value="Borrar" class="btn btn-danger btn-sm">
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
