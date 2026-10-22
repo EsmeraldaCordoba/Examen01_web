@@ -6,7 +6,6 @@
 
         // pagina de inicio
         public function index() {
-            echo 'paso 3: entro a Pages<br>';
 
             $data = [
                 'titulo' => 'Bienvenida a MyBox'

@@ -1,11 +1,16 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8">
-    <title><?php echo siteName; ?></title>
-</head>
-<body>
-    <h1><?php echo $data['titulo']; ?></h1>
-    <p>El MVC esta funcionando.</p>
-</body>
-</html>
+<?php require appRoot . '/views/includes/head.php'; ?>
+<?php require appRoot . '/views/includes/header.php'; ?>
+
+<main class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1><?php echo $data['titulo']; ?></h1>
+
+        <?php if (isLoggedIn()): ?>
+            <p>Hola, <?php echo htmlspecialchars($_SESSION['nombre']); ?>. Ya iniciaste sesión.</p>
+        <?php else: ?>
+            <p>Para usar el sitio debe ingresar o registrarse.</p>
+        <?php endif; ?>
+    </div>
+</main>
+
+<?php require appRoot . '/views/includes/foot.php'; ?>
