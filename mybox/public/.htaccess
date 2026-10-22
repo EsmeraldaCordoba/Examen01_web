@@ -1,0 +1,15 @@
+Options -Multiviews
+Options -Indexes
+RewriteEngine On
+
+# paginas de error
+ErrorDocument 400 /2026/Examen01_web/mybox/public/errors/400.php
+ErrorDocument 403 /2026/Examen01_web/mybox/public/errors/403.php
+ErrorDocument 404 /2026/Examen01_web/mybox/public/errors/404.php
+ErrorDocument 500 /2026/Examen01_web/mybox/public/errors/500.php
+
+# si piden algo que no existe, se manda a index.php con la ruta en 'page'
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+RewriteRule ^(.+)$ index.php?page=$1 [L,QSA]

@@ -8,13 +8,14 @@
     // ruta absoluta de la carpeta app
     define('appRoot', dirname(__FILE__, 2));
 
-    // direccion del sitio (http o https, host y puerto)
+    // protocolo (http/https) y host con el puerto
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
     $host = $_SERVER['HTTP_HOST'];
 
-    // carpeta del proyecto dentro de htdocs, cambiar si se llama diferente
-    $appFolder = '/mybox';
+    // carpeta del proyecto dentro de htdocs
+    $appFolder = '/2026/Examen01_web/mybox';
 
+    // direccion del sitio
     define('urlRoot', $protocol . $host . $appFolder);
 
     // nombre del sitio
