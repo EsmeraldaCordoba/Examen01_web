@@ -28,6 +28,19 @@
             </div>
         </form>
 
+        <!-- subir archivo -->
+        <form action="<?php echo urlRoot; ?>/elements/upload/<?php echo $data['idCarpeta']; ?>" method="post" enctype="multipart/form-data" class="row g-2 mb-3">
+            <div class="col-auto">
+                <input type="file" name="archivo" class="form-control" required>
+            </div>
+            <div class="col-auto">
+                <input type="text" name="txtComentario" class="form-control" placeholder="Comentario (máx. 50)" maxlength="50">
+            </div>
+            <div class="col-auto">
+                <input type="submit" value="Subir archivo" class="btn btn-success">
+            </div>
+        </form>
+
         <!-- lista de archivos y carpetas -->
         <table class="table table-striped">
             <thead>
@@ -64,7 +77,7 @@
                             <td>Archivo</td>
                             <td><?php echo htmlspecialchars($e->nombre); ?></td>
                             <td><?php echo htmlspecialchars($e->comentario); ?></td>
-                            <td><?php echo strtoupper($e->tipo); ?></td>
+                            <td><?php echo tipoDocumento($e->tipo); ?></td>
                             <td><?php echo round($e->peso / 1048576, 2); ?></td>
                         <?php endif; ?>
                         <td><?php echo $e->fecha; ?></td>

@@ -2,6 +2,9 @@
     class Elements extends Controller {
         private $elementModel;
 
+        // limite de tamaño de un archivo: 20 MB
+        private $maxPeso = 20971520;
+
         public function __construct() {
             // solo entra quien tiene la sesion iniciada
             if (!isLoggedIn()) {
@@ -52,6 +55,92 @@
             }
 
             $this->elementModel->createFolder($idUsuario, $padre, $nombre);
+
+            header('location: ' . urlRoot . '/elements/index/' . $idPadre);
+            exit();
+        }
+
+        // sube un archivo a la base de datos dentro de la carpeta actual
+        public function upload($idPadre = 0) {
+            $idPadre = (int)$idPadre;
+
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                header('location: ' . urlRoot . '/elements/index/' . $idPadre);
+                exit();
+            }
+
+            $idUsuario = $_SESSION['id_usuario'];
+
+            // si el archivo pesa mas que post_max_size, php no manda nada
+            if (!isset($_FILES['archivo'])) {
+                $this->mostrar($idPadre, 'El archivo es demasiado grande, el limite es de 20 MB');
+                return;
+            }
+
+            $archivo = $_FILES['archivo'];
+            $comentario = trim($_POST['txtComentario']);
+
+            if ($archivo['error'] == UPLOAD_ERR_NO_FILE) {
+                $this->mostrar($idPadre, 'Debe escoger un archivo');
+                return;
+            }
+
+            if ($archivo['error'] == UPLOAD_ERR_INI_SIZE || $archivo['error'] == UPLOAD_ERR_FORM_SIZE) {
+                $this->mostrar($idPadre, 'El archivo es demasiado grande, el limite es de 20 MB');
+                return;
+            }
+
+            if ($archivo['error'] != UPLOAD_ERR_OK) {
+                $this->mostrar($idPadre, 'Hubo un error al subir el archivo');
+                return;
+            }
+
+            if ($archivo['size'] > $this->maxPeso) {
+                $this->mostrar($idPadre, 'El archivo es demasiado grande, el limite es de 20 MB');
+                return;
+            }
+
+            if (strlen($comentario) > 50) {
+                $this->mostrar($idPadre, 'El comentario puede tener maximo 50 caracteres');
+                return;
+            }
+
+            $nombre = basename($archivo['name']);
+
+            if (strlen($nombre) > 150) {
+                $this->mostrar($idPadre, 'El nombre del archivo es demasiado largo');
+                return;
+            }
+
+            // si va dentro de una carpeta, esa carpeta tiene que ser del usuario
+            if ($idPadre > 0 && !$this->elementModel->getFolder($idPadre, $idUsuario)) {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            if ($idPadre == 0) {
+                $padre = null;
+            } else {
+                $padre = $idPadre;
+            }
+
+            // datos del archivo
+            $tipo = strtolower(pathinfo($nombre, PATHINFO_EXTENSION));
+
+            if (function_exists('mime_content_type')) {
+                $mime = mime_content_type($archivo['tmp_name']);
+            } else {
+                $mime = $archivo['type'];
+            }
+
+            $contenido = file_get_contents($archivo['tmp_name']);
+
+            try {
+                $this->elementModel->createFile($idUsuario, $padre, $nombre, $comentario, $tipo, $mime, $archivo['size'], $contenido);
+            } catch (PDOException $e) {
+                $this->mostrar($idPadre, 'No se pudo guardar el archivo en la base de datos');
+                return;
+            }
 
             header('location: ' . urlRoot . '/elements/index/' . $idPadre);
             exit();

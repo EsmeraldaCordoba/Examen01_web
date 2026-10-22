@@ -57,4 +57,20 @@
 
             return $this->db->execute();
         }
+
+        // guarda un archivo dentro de la base de datos
+        public function createFile($idUsuario, $idPadre, $nombre, $comentario, $tipo, $mime, $peso, $contenido) {
+            $this->db->query('insert into elementos (id_usuario, id_padre, nombre, comentario, es_carpeta, tipo, mime, peso, contenido)
+                              values (:usuario, :padre, :nombre, :comentario, 0, :tipo, :mime, :peso, :contenido)');
+            $this->db->bind(':usuario', $idUsuario);
+            $this->db->bind(':padre', $idPadre);
+            $this->db->bind(':nombre', $nombre);
+            $this->db->bind(':comentario', $comentario);
+            $this->db->bind(':tipo', $tipo);
+            $this->db->bind(':mime', $mime);
+            $this->db->bind(':peso', $peso);
+            $this->db->bind(':contenido', $contenido, PDO::PARAM_LOB);
+
+            return $this->db->execute();
+        }
     }
