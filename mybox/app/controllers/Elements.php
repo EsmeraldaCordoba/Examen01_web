@@ -1,6 +1,7 @@
 <?php
     class Elements extends Controller {
         private $elementModel;
+        private $userModel;
 
         // limite de tamaño de un archivo: 20 MB
         private $maxPeso = 20971520;
@@ -13,6 +14,7 @@
             }
 
             $this->elementModel = $this->model('Element');
+            $this->userModel = $this->model('User');
         }
 
         // muestra el contenido de una carpeta, si no le pasan numero muestra la raiz
@@ -149,10 +151,10 @@
         // abre un archivo: pdf e imagenes se ven en pantalla, lo demas se descarga
         public function open($id = 0) {
             $id = (int)$id;
-            $archivo = $this->elementModel->getFile($id, $_SESSION['id_usuario']);
+            $archivo = $this->elementModel->getFile($id);
 
-            // tiene que existir y ser del usuario
-            if (!$archivo) {
+            // tiene que existir y ser suyo o estar compartido con el
+            if (!$archivo || !$this->elementModel->canAccess($id, $_SESSION['id_usuario'])) {
                 header('location: ' . urlRoot . '/elements/index');
                 exit();
             }
@@ -202,8 +204,75 @@
             exit();
         }
 
+        // comparte un archivo o una carpeta con otro usuario
+        public function share($id = 0) {
+            $id = (int)$id;
+
+            if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            $idUsuario = $_SESSION['id_usuario'];
+            $elemento = $this->elementModel->getElement($id, $idUsuario);
+
+            // solo se puede compartir lo que es del usuario
+            if (!$elemento) {
+                header('location: ' . urlRoot . '/elements/index');
+                exit();
+            }
+
+            $idPadre = (int)$elemento->id_padre;
+            $nombreDestino = trim($_POST['txtUsuario']);
+            $destino = $this->userModel->findUserByUsuario($nombreDestino);
+
+            if ($nombreDestino == '') {
+                $this->mostrar($idPadre, 'Debe escribir el usuario con el que quiere compartir');
+            } elseif (!$destino) {
+                $this->mostrar($idPadre, 'Ese usuario no existe');
+            } elseif ($destino->id == $idUsuario) {
+                $this->mostrar($idPadre, 'No puede compartir con usted mismo');
+            } elseif ($this->elementModel->isShared($id, $destino->id)) {
+                $this->mostrar($idPadre, 'Ya esta compartido con ese usuario');
+            } else {
+                $this->elementModel->shareElement($id, $destino->id);
+                $this->mostrar($idPadre, '', 'Se compartió "' . $elemento->nombre . '" con ' . $destino->usuario);
+            }
+        }
+
+        // lo que me compartieron, sin numero muestra lo compartido directamente conmigo
+        public function shared($idCarpeta = 0) {
+            $idCarpeta = (int)$idCarpeta;
+            $idUsuario = $_SESSION['id_usuario'];
+
+            if ($idCarpeta == 0) {
+                $elementos = $this->elementModel->getSharedWithMe($idUsuario);
+                $ruta = [];
+            } else {
+                $carpeta = $this->elementModel->getElementById($idCarpeta);
+
+                // tiene que ser una carpeta de otro usuario a la que tengo acceso
+                if (!$carpeta || $carpeta->es_carpeta != 1 || $carpeta->id_usuario == $idUsuario
+                    || !$this->elementModel->canAccess($idCarpeta, $idUsuario)) {
+                    header('location: ' . urlRoot . '/elements/shared');
+                    exit();
+                }
+
+                $elementos = $this->elementModel->getSharedContent($idCarpeta);
+                $ruta = $this->elementModel->getSharedPath($idCarpeta, $idUsuario);
+            }
+
+            $data = [
+                'titulo' => 'Compartidos conmigo',
+                'ruta' => $ruta,
+                'elementos' => $elementos
+            ];
+
+            $this->view('elements/shared', $data);
+        }
+
         // arma los datos y muestra la vista
-        private function mostrar($idCarpeta, $error) {
+        private function mostrar($idCarpeta, $error, $ok = '') {
             $idUsuario = $_SESSION['id_usuario'];
 
             if ($idCarpeta > 0) {
@@ -222,7 +291,8 @@
                 'idCarpeta' => $idCarpeta,
                 'ruta' => $this->elementModel->getPath($idCarpeta, $idUsuario),
                 'elementos' => $this->elementModel->getContent($idUsuario, $padre),
-                'error' => $error
+                'error' => $error,
+                'ok' => $ok
             ];
 
             $this->view('elements/index', $data);

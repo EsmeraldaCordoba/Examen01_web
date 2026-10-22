@@ -18,6 +18,9 @@
                                 <a class="nav-link" href="<?php echo urlRoot; ?>/elements/index">Carpetas</a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="<?php echo urlRoot; ?>/elements/shared">Compartidos conmigo</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="<?php echo urlRoot; ?>/users/logout">Salir</a>
                             </li>
                         <?php else: ?>

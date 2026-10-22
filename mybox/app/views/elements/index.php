@@ -18,6 +18,10 @@
             <div class="alert alert-danger"><?php echo $data['error']; ?></div>
         <?php endif; ?>
 
+        <?php if ($data['ok'] != ''): ?>
+            <div class="alert alert-success"><?php echo htmlspecialchars($data['ok']); ?></div>
+        <?php endif; ?>
+
         <!-- crear carpeta -->
         <form action="<?php echo urlRoot; ?>/elements/createFolder/<?php echo $data['idCarpeta']; ?>" method="post" class="row g-2 mb-3">
             <div class="col-auto">
@@ -92,8 +96,21 @@
                             <td><?php echo round($e->peso / 1048576, 2); ?></td>
                         <?php endif; ?>
                         <td><?php echo $e->fecha; ?></td>
-                        <td><?php if ($e->compartido > 0) { echo 'Sí'; } else { echo 'No'; } ?></td>
                         <td>
+                            <?php if ($e->compartido > 0) {
+                                echo 'Sí (' . htmlspecialchars($e->compartido_con) . ')';
+                            } else {
+                                echo 'No';
+                            } ?>
+                        </td>
+                        <td>
+                            <!-- compartir con otro usuario -->
+                            <form action="<?php echo urlRoot; ?>/elements/share/<?php echo $e->id; ?>" method="post" class="d-flex mb-1">
+                                <input type="text" name="txtUsuario" class="form-control form-control-sm" placeholder="usuario" maxlength="15" required>
+                                <input type="submit" value="Compartir" class="btn btn-outline-primary btn-sm">
+                            </form>
+
+                            <!-- borrar -->
                             <?php if ($e->es_carpeta == 1) {
                                 $mensaje = '¿Borrar la carpeta y todo lo que tiene adentro?';
                             } else {
