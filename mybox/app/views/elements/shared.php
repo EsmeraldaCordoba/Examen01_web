@@ -1,20 +1,24 @@
 <?php require appRoot . '/views/includes/head.php'; ?>
 <?php require appRoot . '/views/includes/header.php'; ?>
 
-<main class="row">
-    <div class="col-md-10 offset-md-1">
-        <h3>Compartidos conmigo</h3>
+<main class="storage-page">
+    <div class="container">
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">En equipo</p>
+                <h1>Compartidos conmigo</h1>
+            </div>
+        </div>
 
         <!-- ruta donde estoy parada -->
-        <nav>
+        <nav class="breadcrumb-line" aria-label="Ruta de navegación">
             <a href="<?php echo urlRoot; ?>/elements/shared">Compartidos conmigo</a>
             <?php foreach ($data['ruta'] as $c): ?>
                 / <a href="<?php echo urlRoot; ?>/elements/shared/<?php echo $c->id; ?>"><?php echo htmlspecialchars($c->nombre); ?></a>
             <?php endforeach; ?>
         </nav>
-        <br>
-
-        <table class="table table-striped">
+        <div class="table-responsive storage-table-wrap">
+        <table class="table table-hover align-middle storage-table">
             <thead>
                 <tr>
                     <th>Clase</th>
@@ -68,6 +72,7 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     </div>
 </main>
 

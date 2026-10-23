@@ -1,19 +1,22 @@
 <?php require appRoot . '/views/includes/head.php'; ?>
 <?php require appRoot . '/views/includes/header.php'; ?>
 
-<main class="row">
-    <div class="col-md-10 offset-md-1">
-        <h3>Mis carpetas</h3>
+<main class="storage-page">
+    <div class="container">
+        <div class="page-heading">
+            <div>
+                <p class="eyebrow">Tu espacio</p>
+                <h1>Mis carpetas</h1>
+            </div>
+        </div>
 
         <!-- ruta donde estoy parada -->
-        <nav>
+        <nav class="breadcrumb-line" aria-label="Ruta de navegación">
             <a href="<?php echo urlRoot; ?>/elements/index">Inicio</a>
             <?php foreach ($data['ruta'] as $c): ?>
                 / <a href="<?php echo urlRoot; ?>/elements/index/<?php echo $c->id; ?>"><?php echo htmlspecialchars($c->nombre); ?></a>
             <?php endforeach; ?>
         </nav>
-        <br>
-
         <?php if ($data['error'] != ''): ?>
             <div class="alert alert-danger"><?php echo $data['error']; ?></div>
         <?php endif; ?>
@@ -23,6 +26,7 @@
         <?php endif; ?>
 
         <!-- crear carpeta -->
+        <div class="storage-tools">
         <form action="<?php echo urlRoot; ?>/elements/createFolder/<?php echo $data['idCarpeta']; ?>" method="post" class="row g-2 mb-3">
             <div class="col-auto">
                 <input type="text" name="txtNombre" class="form-control" placeholder="Nombre de la carpeta" maxlength="100" required>
@@ -44,9 +48,11 @@
                 <input type="submit" value="Subir archivo" class="btn btn-success">
             </div>
         </form>
+        </div>
 
         <!-- lista de archivos y carpetas -->
-        <table class="table table-striped">
+        <div class="table-responsive storage-table-wrap">
+        <table class="table table-hover align-middle storage-table">
             <thead>
                 <tr>
                     <th>Clase</th>
@@ -124,6 +130,7 @@
                 <?php endforeach; ?>
             </tbody>
         </table>
+        </div>
     </div>
 </main>
 
